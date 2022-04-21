@@ -3,6 +3,7 @@ package main
 type queryStruct struct {
 	table string
 	query string
+	dataPool []any
 }
 type user_ struct {
 	Id        int    `json:"id"`

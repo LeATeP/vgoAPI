@@ -22,6 +22,11 @@ var (
 
 var (
 	p *sql.DB
+	tables = []queryStruct{
+		{table: "user_", query: "SELECT * FROM user_ order by id"},
+		{table: "item", query: "SELECT * FROM item order by id"},
+		{table: "unit", query: "SELECT * FROM unit order by id"},
+	}
 )
 
 func main() {
@@ -35,34 +40,27 @@ func main() {
 }
 func GetTable(c *gin.Context) {
 	table := c.Param(`table`)
-	va := []queryStruct{{table: "user_", query: "SELECT * FROM user_ order by id"},
-						{table: "item", query: "SELECT * FROM item order by id"},
-						{table: "unit", query: "SELECT * FROM unit order by id"}}
-	for i, v := range va {
+	for _, v := range tables {
 		if v.table == table {
-			data, err := fetchUsers(&va[i])
-			if err != nil {
+			if err := v.fetchUsers(); err != nil {
 				c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			}
-			c.IndentedJSON(http.StatusOK, data)
+			c.IndentedJSON(http.StatusOK, v.dataPool)
 			return
 		}
 	}
 	c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Table not found"})
 }
-// next implementation is to use generics, fetchUser[user_] for each, in separate fn, 
-// use []any as a data gather in struct and pointers...
-func fetchUsers(q *queryStruct) ([]any, error) {
+func (schema *queryStruct) fetchUsers() error {
 	var data any
-	var dataPool []any
 	var pointers []any
-	rows, err := p.Query(q.query)
+	rows, err := p.Query(schema.query)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		switch q.table {
+		switch schema.table {
 		case `user_`:
 			u := user_{}
 			pointers = []any{&u.Id, &u.Username, &u.Units, &u.Inventory}
@@ -78,13 +76,13 @@ func fetchUsers(q *queryStruct) ([]any, error) {
 		}
 		err = rows.Scan(pointers...)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		dataPool = append(dataPool, data)
+		schema.dataPool = append(schema.dataPool, data)
 	}
 	err = rows.Err()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return dataPool, nil
+	return nil
 }
