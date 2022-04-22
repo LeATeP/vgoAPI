@@ -6,9 +6,8 @@ func (s *queryStruct) fetchTable() error {
 		return err
 	}
 	defer rows.Close()
-	columns, _ := rows.Columns()
 	for rows.Next() {
-		s.makePointers(columns)
+		s.makePointers()
 
 		err = rows.Scan(s.pointers...)
 		if err != nil {
@@ -23,7 +22,7 @@ func (s *queryStruct) fetchTable() error {
 	return nil
 }
 
-func (s *queryStruct) makePointers(columns []string) {
+func (s *queryStruct) makePointers() {
 	switch s.table {
 	case "user_":
 		var d user_

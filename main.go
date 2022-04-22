@@ -21,11 +21,12 @@ var (
 )
 
 var (
-	p *sql.DB
+	p      *sql.DB
 	tables = []queryStruct{
 		{table: "user_", query: "SELECT * FROM user_ order by id"},
 		{table: "item", query: "SELECT * FROM item order by id"},
 		{table: "unit", query: "SELECT * FROM unit order by id"},
+		{id: 10, name: "query units by user", table: "unit", query: "SELECT * FROM unit WHERE user_id = $1 order by id"},
 	}
 )
 
@@ -34,14 +35,13 @@ func main() {
 		log.Fatal(err)
 	}
 	rou := gin.Default()
-	rou.GET("/:table", GetTable)
+	rou.GET("/:view", GetTable)
 
-	rou.Run(":8080")
+	_ = rou.Run(":8080")
 }
 
-
 func GetTable(c *gin.Context) {
-	table := c.Param(`table`)
+	table := c.Param(`view`)
 	for _, v := range tables {
 		if v.table == table {
 			if err := v.fetchTable(); err != nil {

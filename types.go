@@ -1,11 +1,13 @@
 package main
 
 type queryStruct struct {
-	table string
-	query string
-	dataPool []any
+	id int
+	name string
+	table    string
+	query    string
+	data     any
 	pointers []any
-	data any
+	dataPool []any
 }
 type user_ struct {
 	Id        int    `json:"id"`
