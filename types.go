@@ -1,5 +1,15 @@
 package main
 
+// Type con_config is connection config to database
+type con_config struct {
+	hostname string // name of the machine / service / containerID
+	host     string // IP address of db or name of the network
+	dbname   string // name of db to connect to
+	user     string // db user
+	password string // db password
+	port     int    // port of db
+}
+			
 type queryStruct struct {
 	id int
 	name string
@@ -42,3 +52,5 @@ type item struct {
 	Tier        int    `json:"tier"`
 	Description string `json:"description"`
 }
+
+
